@@ -4,7 +4,7 @@ const dayCards = document.querySelectorAll('.day-card');
 const pastSearches = document.querySelectorAll('.past-search');
 const pastSearchContainer = document.getElementById('past-search-container');
 const dashboard = document.getElementById('dashboard');
-let clickedPastSearch = false;
+const localStorageID = 'savedCities'
 
 const apiKey = 'da28c0983d5446a54b260ffeed8807f4';
 const locationBaseURL = `https://api.openweathermap.org/data/2.5/forecast`;
@@ -14,7 +14,7 @@ const weatherIconURL = `http://openweathermap.org/img/wn/`;
 
 
 
-const searchCity = async function() {
+const searchCity = async function(clickedPastSearch) {
     
     const citySearchValue = searchBar.value;
     // Reset search bar value to default
@@ -74,18 +74,45 @@ const searchCity = async function() {
         newPastSearch.classList.add('tile','is-child','box', 'past-search');
         newPastSearch.textContent = properCaseWord;
         pastSearchContainer.appendChild(newPastSearch);
+
+        // Add searched City to local storage
+        var localStorageData = JSON.parse(localStorage.getItem(localStorageID));
+        if(!localStorageData){
+            const newList = [];
+            newList.push(properCaseWord);
+            localStorage.setItem(localStorageID, JSON.stringify(newList))
+        }
+        else{
+            localStorageData.push(properCaseWord);
+            localStorage.setItem(localStorageID, JSON.stringify(localStorageData));
+        }
+        
     };
-    
-    clickedPastSearch = false;
 };
+
+
+// Populate past searches list with saved data in local storage
+const populatePastSearches = function() {
+    var localStorageData = JSON.parse(localStorage.getItem(localStorageID));
+    if(!localStorageData){
+        return;
+    };
+
+    localStorageData.forEach((city) => {
+        const newPastSearch = document.createElement('div');
+        newPastSearch.classList.add('tile','is-child','box', 'past-search');
+        newPastSearch.textContent = city;
+        pastSearchContainer.appendChild(newPastSearch);
+    });
+};
+
 
 // Event listener for search bar
 searchButton.addEventListener("click", async (event) => {
     event.preventDefault();
-    await searchCity();
+    await searchCity(false);
 });
 
-console.log(pastSearches);
 
 // Event listener for past searches
 pastSearchContainer.addEventListener('click', async (event) => {
@@ -93,10 +120,17 @@ pastSearchContainer.addEventListener('click', async (event) => {
 
     searchBar.value = search.textContent;
     clickedPastSearch = true;
-    await searchCity();
+    await searchCity(true);
+
 });
 
 
+// Initialize page
+const init = function() {
+    populatePastSearches();
+};
+
+init();
 
 
 
