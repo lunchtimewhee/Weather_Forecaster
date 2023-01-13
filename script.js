@@ -1,19 +1,24 @@
 const searchBar = document.getElementById('search-bar');
 const searchButton = document.getElementById('search-button');
 const dayCards = document.querySelectorAll('.day-card');
+const pastSearches = document.querySelectorAll('.past-search');
+const pastSearchContainer = document.getElementById('past-search-container');
 const dashboard = document.getElementById('dashboard');
+let clickedPastSearch = false;
 
 const apiKey = 'da28c0983d5446a54b260ffeed8807f4';
-const locationBaseURL = `https://api.openweathermap.org/data/2.5/forecast`;//?lat={lat}&lon={lon}&appid={API key}`;
-const citySearchBaseURL= `http://api.openweathermap.org/geo/1.0/direct`;//?q=London&limit=5&appid={API key}`;
+const locationBaseURL = `https://api.openweathermap.org/data/2.5/forecast`;
+const citySearchBaseURL= `http://api.openweathermap.org/geo/1.0/direct`;
 const currentWeatherBaseURL = `https://api.openweathermap.org/data/2.5/weather`;
 const weatherIconURL = `http://openweathermap.org/img/wn/`;
 
-// Event listener for search bar
-searchButton.addEventListener("click", async (event) => {
-    event.preventDefault();
+
+
+const searchCity = async function() {
     
     const citySearchValue = searchBar.value;
+    // Reset search bar value to default
+    searchBar.value = '';
 
     // Use city name to search for lon/lat via API
     const cityRes = await fetch(`${citySearchBaseURL}?q=${citySearchValue}&limit=1&appid=${apiKey}`);
@@ -21,18 +26,16 @@ searchButton.addEventListener("click", async (event) => {
     const lat = cityCoord[0].lat;
     const lon = cityCoord[0].lon;
 
+
     // Update Dashboard ---------------------------------------------- 
     const currentWeatherRes = await fetch(`${currentWeatherBaseURL}?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`);
     const currentWeatherData = await currentWeatherRes.json();
-    console.log(currentWeatherData);
 
-    dashboard.innerHTML = `<h1><strong>${currentWeatherData.name} (${(new Date(currentWeatherData.dt*1000)).toLocaleDateString('en-US')})</strong></h1><img src='${weatherIconURL}/${currentWeatherData.weather[0].icon}.png'><br>
+    dashboard.innerHTML = `<h1><strong>${currentWeatherData.name} (${(new Date(currentWeatherData.dt*1000)).toLocaleDateString('en-US')})<img src='${weatherIconURL}/${currentWeatherData.weather[0].icon}.png' height="36" width="36"></strong></h1><br>
         Temp: ${currentWeatherData.main.temp} °F<br>
         Wind: ${currentWeatherData.wind.speed} MPH<br>
-        Humidity: ${currentWeatherData.main.humidity}%`
+        Humidity: ${currentWeatherData.main.humidity}%`    
 
-
-    
 
 
     // Update Day Cards ------------------------------------------------
@@ -47,7 +50,6 @@ searchButton.addEventListener("click", async (event) => {
     // Populate each day card with data from the given day
     dayCards.forEach((card) => {
         const dayData = weatherData.list[dayCount];
-        console.log(new Date(dayData.dt*1000));
 
         card.innerHTML = `<strong>${(new Date(dayData.dt*1000)).toLocaleDateString('en-US')}</strong><br>
         <img src='${weatherIconURL}/${dayData.weather[0].icon}.png'><br>
@@ -57,7 +59,44 @@ searchButton.addEventListener("click", async (event) => {
         dayCount = dayCount + 8;
     });
 
+
+    // Add current search to past search list if it's a new search
+
+    if(!clickedPastSearch){
+        // First turn the city name into proper case
+        const properCaseList = citySearchValue.split(' ').map((word) => {
+            return word[0].toUpperCase() + word.slice(1);
+        });
+        const properCaseWord = properCaseList.join(' ');
+
+        // Create new element and add to DOM 
+        const newPastSearch = document.createElement('div');
+        newPastSearch.classList.add('tile','is-child','box', 'past-search');
+        newPastSearch.textContent = properCaseWord;
+        pastSearchContainer.appendChild(newPastSearch);
+    };
     
-    // Reset search bar value to default
-    searchBar.value = '';
+    clickedPastSearch = false;
+};
+
+// Event listener for search bar
+searchButton.addEventListener("click", async (event) => {
+    event.preventDefault();
+    await searchCity();
 });
+
+console.log(pastSearches);
+
+// Event listener for past searches
+pastSearchContainer.addEventListener('click', async (event) => {
+    const search = event.target;
+
+    searchBar.value = search.textContent;
+    clickedPastSearch = true;
+    await searchCity();
+});
+
+
+
+
+

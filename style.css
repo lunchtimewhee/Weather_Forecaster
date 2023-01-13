@@ -1,3 +1,7 @@
 h1 {
-    font-size: 40px;
+    font-size: 24px;
+}
+
+.past-search:hover{
+    cursor: pointer;
 }
