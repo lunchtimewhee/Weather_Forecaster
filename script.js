@@ -8,9 +8,9 @@ const localStorageID = 'savedCities'
 
 const apiKey = 'da28c0983d5446a54b260ffeed8807f4';
 const locationBaseURL = `https://api.openweathermap.org/data/2.5/forecast`;
-const citySearchBaseURL= `http://api.openweathermap.org/geo/1.0/direct`;
+const citySearchBaseURL= `https://api.openweathermap.org/geo/1.0/direct`;
 const currentWeatherBaseURL = `https://api.openweathermap.org/data/2.5/weather`;
-const weatherIconURL = `http://openweathermap.org/img/wn/`;
+const weatherIconURL = `https://openweathermap.org/img/wn/`;
 
 
 
