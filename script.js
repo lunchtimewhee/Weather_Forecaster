@@ -69,12 +69,6 @@ const searchCity = async function(clickedPastSearch) {
         });
         const properCaseWord = properCaseList.join(' ');
 
-        // Create new element and add to DOM 
-        const newPastSearch = document.createElement('div');
-        newPastSearch.classList.add('tile','is-child','box', 'past-search');
-        newPastSearch.textContent = properCaseWord;
-        pastSearchContainer.appendChild(newPastSearch);
-
         // Add searched City to local storage
         var localStorageData = JSON.parse(localStorage.getItem(localStorageID));
         if(!localStorageData){
@@ -83,9 +77,21 @@ const searchCity = async function(clickedPastSearch) {
             localStorage.setItem(localStorageID, JSON.stringify(newList))
         }
         else{
+            if(localStorageData.includes(properCaseWord)){
+                return;
+            }   
             localStorageData.push(properCaseWord);
             localStorage.setItem(localStorageID, JSON.stringify(localStorageData));
         }
+
+
+        // Create new element and add to DOM 
+        const newPastSearch = document.createElement('div');
+        newPastSearch.classList.add('tile','is-child','box', 'past-search');
+        newPastSearch.textContent = properCaseWord;
+        pastSearchContainer.appendChild(newPastSearch);
+
+        
         
     };
 };
